@@ -11,6 +11,7 @@ import BlogScreen from './src/screens/BlogScreen';
 import TermsScreen from './src/screens/TermsScreen';
 import AllCalendars from './src/screens/AllCalendars';
 import CalendarShowScreen from './src/screens/CalendarShowScreen';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -32,36 +33,38 @@ function EventsStack() {
 
 function App() {
   return (
-    <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          headerShown: false,
-          tabBarStyle: { height: 60 },
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <Tab.Navigator
+          screenOptions={({ route }) => ({
+            headerShown: false,
+            tabBarStyle: { height: 60 },
+            tabBarIcon: ({ focused, color, size }) => {
+              let iconName;
 
-            if (route.name === 'Events') {
-              iconName = focused ? 'calendar' : 'calendar-outline';
-            } else if (route.name === 'Profile') {
-              iconName = focused ? 'person' : 'person-outline';
-            } else if (route.name === 'Blog') {
-              iconName = focused ? 'book' : 'book-outline';
-            } else if (route.name === 'Terms') {
-              iconName = focused ? 'document-text' : 'document-text-outline';
-            }
+              if (route.name === 'Events') {
+                iconName = focused ? 'calendar' : 'calendar-outline';
+              } else if (route.name === 'Profile') {
+                iconName = focused ? 'person' : 'person-outline';
+              } else if (route.name === 'Blog') {
+                iconName = focused ? 'book' : 'book-outline';
+              } else if (route.name === 'Terms') {
+                iconName = focused ? 'document-text' : 'document-text-outline';
+              }
 
-            return <Ionicons name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: '#22C3B5',
-          tabBarInactiveTintColor: 'gray',
-        })}
-      >
-        <Tab.Screen name="Events" component={EventsStack} />
-        <Tab.Screen name="Profile" component={ProfileScreen} />
-        <Tab.Screen name="Blog" component={BlogScreen} />
-        <Tab.Screen name="Terms" component={TermsScreen} />
-      </Tab.Navigator>
-    </NavigationContainer>
+              return <Ionicons name={iconName} size={size} color={color} />;
+            },
+            tabBarActiveTintColor: '#22C3B5',
+            tabBarInactiveTintColor: 'gray',
+          })}
+        >
+          <Tab.Screen name="Events" component={EventsStack} />
+          <Tab.Screen name="Profile" component={ProfileScreen} />
+          <Tab.Screen name="Blog" component={BlogScreen} />
+          <Tab.Screen name="Terms" component={TermsScreen} />
+        </Tab.Navigator>
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
 

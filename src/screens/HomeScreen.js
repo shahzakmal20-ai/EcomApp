@@ -143,7 +143,7 @@ const HomeScreen = () => {
     <View style={styles.container}>
       <Header />
       <Categories />
-      <Calendars />
+  
       <FlatList
         data={events}
         renderItem={renderItem}
@@ -154,6 +154,7 @@ const HomeScreen = () => {
         removeClippedSubviews={true}
         initialNumToRender={10}
         windowSize={5}
+        ListHeaderComponent={<Calendars />}
         ListEmptyComponent={
           !loading && (
             <View style={styles.emptyContainer}>

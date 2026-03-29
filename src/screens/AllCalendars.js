@@ -62,9 +62,9 @@ const AllCalendars = () => {
   const renderItem = ({ item }) => {
     const openCalendar = item => {
       navigation.navigate('CalendarShow', {
-        calendarId: item.id,
+        calendarSlug: item.slug, 
         calendarName: item.name,
-        slug: item.slug,
+        calendarLogo: item.logo_url,
       });
     };
     return (

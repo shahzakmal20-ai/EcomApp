@@ -42,23 +42,36 @@ const Calendars = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.item}>
-      <Image
-        source={
-          item.logo_url ? { uri: item.logo_url } : require('../../assets/appicon.png')
-        }
-        style={styles.image}
-      />
-      <Text style={styles.name} numberOfLines={1}>
-        {item.name}
-      </Text>
-    </View>
+    <TouchableOpacity
+      onPress={() =>
+        navigation.navigate('CalendarShow', {
+          calendarSlug: item.slug,
+          calendarName: item.name,
+          calendarLogo: item.logo_url,
+        })
+      }
+      style={styles.item}
+    >
+      <View style={styles.item}>
+        <Image
+          source={
+            item.logo_url
+              ? { uri: item.logo_url }
+              : require('../../assets/appicon.png')
+          }
+          style={styles.image}
+        />
+        <Text style={styles.name} numberOfLines={1}>
+          {item.name}
+        </Text>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>Calendars</Text>
+        <Text style={styles.title}>Explore Calendars</Text>
 
         <TouchableOpacity onPress={() => navigation.navigate('AllCalendars')}>
           <Text style={styles.allBtn}>All</Text>
