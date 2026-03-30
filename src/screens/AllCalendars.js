@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigation } from '@react-navigation/native';
+import Header from '../components/Header';
 import {
   View,
   Text,
@@ -62,7 +63,7 @@ const AllCalendars = () => {
   const renderItem = ({ item }) => {
     const openCalendar = item => {
       navigation.navigate('CalendarShow', {
-        calendarSlug: item.slug, 
+        calendarSlug: item.slug,
         calendarName: item.name,
         calendarLogo: item.logo_url,
       });
@@ -96,6 +97,7 @@ const AllCalendars = () => {
 
   return (
     <View style={styles.container}>
+      <Header showSearch={true} placeholder="Search calendars..." />
       <FlatList
         data={calendars}
         keyExtractor={item => item.id.toString()}

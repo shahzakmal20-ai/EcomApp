@@ -70,24 +70,7 @@ const HomeScreen = () => {
 
     fetchEvents(page + 1);
   };
-  const openMap = location => {
-    if (!location) return;
 
-    const url = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-      location,
-    )}`;
-    Linking.openURL(url);
-  };
-  // CARD UI
-  const BASE_URL = 'https://ceola-unreprovable-modesto.ngrok-free.dev';
-
-  const openEvent = item => {
-    if (!item.calendar_slug || !item.event_slug) return;
-
-    const url = `${BASE_URL}/calendars/${item.calendar_slug}/events/${item.event_slug}`;
-
-    Linking.openURL(url).catch(err => console.log('Error opening event:', err));
-  };
   const renderItem = ({ item }) => {
     const date = item.start_date ? new Date(item.start_date) : null;
 
@@ -141,9 +124,12 @@ const HomeScreen = () => {
 
   return (
     <View style={styles.container}>
-      <Header />
+      <Header
+        showSearch={true}
+        placeholder="Search Events..."
+        onSearchPress={() => fetchEvents(1)} 
+      />
       <Categories />
-  
       <FlatList
         data={events}
         renderItem={renderItem}

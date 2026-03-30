@@ -98,7 +98,7 @@ const CalendarShowScreen = ({ route }) => {
           </Text>
 
           <Text style={styles.location}>
-            📍 {item.location || 'No location'}
+             {item.location || 'No location'}
           </Text>
 
           <Text style={styles.price}>

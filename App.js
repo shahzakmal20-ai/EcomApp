@@ -25,8 +25,25 @@ function EventsStack() {
         options={{ headerShown: false }}
       />
       <Stack.Screen name="EventDetail" component={EventDetailScreen} />
-      <Stack.Screen name="AllCalendars" component={AllCalendars} />
+      <Stack.Screen
+        name="AllCalendars"
+        component={AllCalendars}
+        options={{ headerShown: false }}
+      />
       <Stack.Screen name="CalendarShow" component={CalendarShowScreen} />
+    </Stack.Navigator>
+  );
+}
+function CalendarsStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="AllCalendars"
+        component={AllCalendars}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen name="CalendarShow" component={CalendarShowScreen} />
+      <Stack.Screen name="EventDetail" component={EventDetailScreen} />
     </Stack.Navigator>
   );
 }
@@ -36,16 +53,17 @@ function App() {
     <SafeAreaProvider>
       <NavigationContainer>
         <Tab.Navigator
+          initialRouteName="Explore"
           screenOptions={({ route }) => ({
             headerShown: false,
             tabBarStyle: { height: 60 },
             tabBarIcon: ({ focused, color, size }) => {
               let iconName;
 
-              if (route.name === 'Events') {
+              if (route.name === 'Calendars') {
                 iconName = focused ? 'calendar' : 'calendar-outline';
-              } else if (route.name === 'Profile') {
-                iconName = focused ? 'person' : 'person-outline';
+              } else if (route.name === 'Explore') {
+                iconName = focused ? 'compass' : 'compass-outline';
               } else if (route.name === 'Blog') {
                 iconName = focused ? 'book' : 'book-outline';
               } else if (route.name === 'Terms') {
@@ -58,8 +76,8 @@ function App() {
             tabBarInactiveTintColor: 'gray',
           })}
         >
-          <Tab.Screen name="Events" component={EventsStack} />
-          <Tab.Screen name="Profile" component={ProfileScreen} />
+          <Tab.Screen name="Calendars" component={CalendarsStack} />
+          <Tab.Screen name="Explore" component={EventsStack} />
           <Tab.Screen name="Blog" component={BlogScreen} />
           <Tab.Screen name="Terms" component={TermsScreen} />
         </Tab.Navigator>

@@ -10,28 +10,38 @@ import {
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
-const Header = () => {
-    const navigation = useNavigation();
+const Header = ({
+  showSearch = false,
+  placeholder = 'Search...',
+  value,
+  onChangeText,
+  onSubmit,
+}) => {
+  const navigation = useNavigation();
   return (
     <View style={styles.container}>
       {/* Logo */}
-    <Image
-      source={require('../../assets/daisylogo.png')}
-
-      style={styles.logo}
-    />
+      <Image
+        source={require('../../assets/daisylogo.png')}
+        style={styles.logo}
+      />
 
       <Text style={styles.appName}>MyDaisy</Text>
 
-      {/* Search Bar */}
-      <View style={styles.searchContainer}>
-        <Icon name="search" size={20} color="#020D1F" />
-        <TextInput
-          placeholder="search events.."
-          placeholderTextColor="#464343"
-          style={styles.searchInput}
-        />
-      </View>
+      {showSearch && (
+        <View style={styles.searchContainer}>
+          <Icon name="search" size={20} color="#020D1F" />
+          <TextInput
+            placeholder={placeholder}
+            placeholderTextColor="#464343"
+            style={styles.searchInput}
+            value={value}
+            onChangeText={onChangeText}
+            onSubmitEditing={onSubmit}
+            returnKeyType="search"
+          />
+        </View>
+      )}
     </View>
   );
 };
