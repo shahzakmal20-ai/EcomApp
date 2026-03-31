@@ -5,6 +5,7 @@ import Calendars from '../components/Calendars';
 import Categories from '../components/Categories';
 import SearchModal from '../components/SearchModal';
 import { useNavigation } from '@react-navigation/native';
+import EventCard from '../components/EventCard';
 import {
   View,
   Text,
@@ -100,45 +101,7 @@ const HomeScreen = () => {
   };
 
   const renderItem = ({ item }) => {
-    const date = item.start_date ? new Date(item.start_date) : null;
-
-    const day = date ? date.getDate() : '--';
-    const month = date
-      ? date.toLocaleString('default', { month: 'short' })
-      : '';
-
-    return (
-      <View style={styles.card}>
-        {/* IMAGE */}
-        <TouchableOpacity
-          onPress={() => navigation.navigate('EventDetail', { event: item })}
-        >
-          <Image
-            source={{
-              uri: item.banner_image_url || 'https://via.placeholder.com/400',
-            }}
-            style={styles.image}
-          />
-        </TouchableOpacity>
-        {/* DATE BADGE */}
-        <View style={styles.dateBadge}>
-          <Text style={styles.dateDay}>{day}</Text>
-          <Text style={styles.dateMonth}>{month}</Text>
-        </View>
-
-        {/* CONTENT */}
-        <View style={styles.content}>
-          <Text style={styles.title} numberOfLines={2}>
-            {item.title}
-          </Text>
-          <Text style={styles.location}>{item.location || 'No location'}</Text>
-
-          <Text style={styles.price}>
-            $ {item.price ? `$${item.price}` : 'Free'}
-          </Text>
-        </View>
-      </View>
-    );
+    return <EventCard item={item} />;
   };
 
   //  LOADING SCREEN
@@ -244,69 +207,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
 
-  card: {
-    backgroundColor: '#fff',
-    marginHorizontal: 14,
-    marginTop: 14,
-    borderRadius: 18,
-    overflow: 'hidden',
-    shadowColor: '#000',
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
 
-    elevation: 4,
-  },
-
-  image: {
-    width: '100%',
-    height: 250,
-  },
-
-  dateBadge: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: '#111',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-
-  dateDay: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: 'bold',
-  },
-
-  dateMonth: {
-    color: '#fff',
-    fontSize: 12,
-  },
-
-  content: {
-    padding: 14,
-  },
-
-  title: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#222',
-  },
-
-  location: {
-    marginTop: 6,
-    color: '#666',
-    fontSize: 13,
-  },
-
-  price: {
-    marginTop: 8,
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#000',
-  },
   emptyContainer: {
     flex: 1,
     justifyContent: 'center',
