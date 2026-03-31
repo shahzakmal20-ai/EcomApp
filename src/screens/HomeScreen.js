@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Calendars from '../components/Calendars';
 import Categories from '../components/Categories';
+import SearchModal from '../components/SearchModal';
 import { useNavigation } from '@react-navigation/native';
 import {
   View,
@@ -20,6 +21,12 @@ const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [filters, setFilters] = useState({
+    name: '',
+    location: '',
+    price_filter: 'any',
+  });
   const [events, setEvents] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -30,12 +37,29 @@ const HomeScreen = () => {
     'https://ceola-unreprovable-modesto.ngrok-free.dev/api/v1/bigdaisy/events';
 
   // FETCH EVENTS
-  const fetchEvents = async (pageNum = 1) => {
+  const fetchEvents = async (pageNum = 1, appliedFilters = filters) => {
     try {
       pageNum === 1 ? setLoading(true) : setLoadingMore(true);
 
-      const res = await fetch(`${API_URL}?page=${pageNum}&per_page=10`);
+      let url = `${API_URL}?page=${pageNum}&per_page=10`;
 
+      if (appliedFilters.name?.trim()) {
+        url += `&name=${encodeURIComponent(appliedFilters.name.trim())}`;
+      }
+
+      if (appliedFilters.location?.trim()) {
+        url += `&location=${encodeURIComponent(
+          appliedFilters.location.trim(),
+        )}`;
+      }
+      if (
+        appliedFilters.price_filter &&
+        appliedFilters.price_filter !== 'any'
+      ) {
+        url += `&price_filter=${appliedFilters.price_filter}`;
+      }
+
+      const res = await fetch(url);
       const data = await res.json();
 
       const newEvents = data.events || [];
@@ -48,7 +72,6 @@ const HomeScreen = () => {
 
       setPage(pageNum);
 
-      // stop when no more data
       if (newEvents.length < 10) {
         setHasMore(false);
       }
@@ -68,7 +91,7 @@ const HomeScreen = () => {
   const loadMore = () => {
     if (loadingMore || !hasMore) return;
 
-    fetchEvents(page + 1);
+    fetchEvents(page + 1, filters);
   };
 
   const renderItem = ({ item }) => {
@@ -127,9 +150,19 @@ const HomeScreen = () => {
       <Header
         showSearch={true}
         placeholder="Search Events..."
-        onSearchPress={() => fetchEvents(1)} 
+        onSearchPress={() => setSearchModalVisible(true)}
       />
-      <Categories />
+      <SearchModal
+        visible={searchModalVisible}
+        onClose={() => setSearchModalVisible(false)}
+        onApply={newFilters => {
+          setFilters(newFilters);
+          setHasMore(true); // reset pagination
+          fetchEvents(1, newFilters);
+          // fetch filtered data
+        }}
+      />
+      <Categories  />
       <FlatList
         data={events}
         renderItem={renderItem}

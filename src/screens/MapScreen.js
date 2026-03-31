@@ -12,7 +12,7 @@ const MapScreen = () => {
   const [html, setHtml] = useState('');
   const [loading, setLoading] = useState(true);
 
-  const buildMapHTML = (calendars) => {
+  const buildMapHTML = calendars => {
     return `
 <!DOCTYPE html>
 <html>
@@ -86,7 +86,9 @@ const MapScreen = () => {
 <div id="map"></div>
 
 <script>
-  const map = L.map('map').setView([30.3753, 69.3451], 5);
+    const map = L.map('map', {
+     zoomControl: true,
+    }).setView([30.3753, 69.3451], 5);
 
     L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
     attribution: '&copy; OpenStreetMap &copy; CartoDB',
@@ -149,7 +151,7 @@ const MapScreen = () => {
   }
 
   const calendars = ${JSON.stringify(calendars)};
-
+  const bounds = [];
   calendars.forEach(c => {
     if (!c.latitude || !c.longitude) return;
 
@@ -163,7 +165,15 @@ const MapScreen = () => {
       latitude: lat,
       longitude: lng
     });
+    bounds.push([lat, lng]);
   });
+  if (bounds.length === 1) {
+    map.setView(bounds[0], 10); // single calendar
+  }else if (bounds.length > 1) {
+    map.fitBounds(bounds, {
+        padding: [50, 50]
+    });
+ }
 
 </script>
 </body>
@@ -203,7 +213,7 @@ const MapScreen = () => {
         originWhitelist={['*']}
         javaScriptEnabled
         domStorageEnabled
-        onMessage={(event) => {
+        onMessage={event => {
           const calendar = JSON.parse(event.nativeEvent.data);
 
           navigation.navigate('CalendarShow', {

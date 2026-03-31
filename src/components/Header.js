@@ -1,23 +1,11 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  TextInput,
-  StyleSheet,
-  Image,
-  TouchableOpacity,
-} from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 
-const Header = ({
-  showSearch = false,
-  placeholder = 'Search...',
-  value,
-  onChangeText,
-  onSubmit,
-}) => {
+const Header = ({ onSearchPress }) => {
   const navigation = useNavigation();
+
   return (
     <View style={styles.container}>
       {/* Logo */}
@@ -28,23 +16,15 @@ const Header = ({
 
       <Text style={styles.appName}>MyDaisy</Text>
 
-      {showSearch && (
-        <View style={styles.searchContainer}>
-          <Icon name="search" size={20} color="#020D1F" />
-          <TextInput
-            placeholder={placeholder}
-            placeholderTextColor="#464343"
-            style={styles.searchInput}
-            value={value}
-            onChangeText={onChangeText}
-            onSubmitEditing={onSubmit}
-            returnKeyType="search"
-          />
-        </View>
-      )}
+      {/* Search Icon */}
+      <TouchableOpacity onPress={onSearchPress} style={styles.iconContainer}>
+        <Icon name="search" size={22} color="#020D1F" />
+      </TouchableOpacity>
     </View>
   );
 };
+
+export default Header;
 
 const styles = StyleSheet.create({
   container: {
@@ -52,7 +32,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     padding: 10,
     backgroundColor: '#FFFFFF',
-    elevation: 3, // Android shadow
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -67,28 +47,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     marginLeft: 10,
-    color: '#22C3B5', // white text for better contrast
-  },
-  searchContainer: {
-    flex: 1,
-    flexDirection: 'row',
-    backgroundColor: '#FFFFFF', // lighter grey for search bar
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginHorizontal: 10,
-    alignItems: 'center',
-    borderWidth: 2,
-    borderColor: '#22C3B5',
-  },
-  searchInput: {
-    flex: 1,
-    paddingVertical: 5,
-    marginLeft: 5,
-    color: '#333', // text color
+    color: '#22C3B5',
   },
   iconContainer: {
+    marginLeft: 'auto',
     padding: 5,
   },
 });
-
-export default Header;
