@@ -11,6 +11,7 @@ import BlogScreen from './src/screens/BlogScreen';
 import TermsScreen from './src/screens/TermsScreen';
 import AllCalendars from './src/screens/AllCalendars';
 import CalendarShowScreen from './src/screens/CalendarShowScreen';
+import MapScreen from './src/screens/MapScreen';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
@@ -47,6 +48,22 @@ function CalendarsStack() {
     </Stack.Navigator>
   );
 }
+function MapStack() {
+  return (
+    <Stack.Navigator>
+      <Stack.Screen
+        name="MapMain"
+        component={MapScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="CalendarShow"
+        component={CalendarShowScreen}
+      />
+       <Stack.Screen name="EventDetail" component={EventDetailScreen} />
+    </Stack.Navigator>
+  );
+}
 
 function App() {
   return (
@@ -66,8 +83,8 @@ function App() {
                 iconName = focused ? 'compass' : 'compass-outline';
               } else if (route.name === 'Blog') {
                 iconName = focused ? 'book' : 'book-outline';
-              } else if (route.name === 'Terms') {
-                iconName = focused ? 'document-text' : 'document-text-outline';
+              } else if (route.name === 'Map') {
+                iconName = focused ? 'location' : 'location-outline';
               }
 
               return <Ionicons name={iconName} size={size} color={color} />;
@@ -79,7 +96,7 @@ function App() {
           <Tab.Screen name="Calendars" component={CalendarsStack} />
           <Tab.Screen name="Explore" component={EventsStack} />
           <Tab.Screen name="Blog" component={BlogScreen} />
-          <Tab.Screen name="Terms" component={TermsScreen} />
+          <Tab.Screen name="Map" component={MapStack} />
         </Tab.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>
