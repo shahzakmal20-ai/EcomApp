@@ -2,8 +2,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
 import Header from '../components/Header';
 import Calendars from '../components/Calendars';
-import Categories from '../components/Categories';
 import SearchModal from '../components/SearchModal';
+import FilterModal from '../components/FilterModal';
 import { useNavigation } from '@react-navigation/native';
 import EventCard from '../components/EventCard';
 import {
@@ -12,17 +12,22 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  Image,
   Dimensions,
   TouchableOpacity,
   Linking,
+  ScrollView,
+  Animated,
 } from 'react-native';
 
 const { width } = Dimensions.get('window');
 
 const HomeScreen = () => {
   const navigation = useNavigation();
+  const scrollY = React.useRef(new Animated.Value(0)).current;
+
   const [searchModalVisible, setSearchModalVisible] = useState(false);
+  const [filterModalVisible, setFilterModalVisible] = useState(false);
+  const [filterInitialSection, setFilterInitialSection] = useState(null);
   const [filters, setFilters] = useState({
     name: '',
     location: '',
@@ -120,6 +125,72 @@ const HomeScreen = () => {
     return <EventCard item={item} />;
   };
 
+  const renderFilterBar = () => {
+    const activeDate = filters.date_filter !== 'any' ? (filters.date_filter === 'custom' ? 'Custom Date' : filters.date_filter.replace('_', ' ')) : 'Date';
+    const activePrice = filters.price_filter !== 'any' ? filters.price_filter : 'Price';
+    const activeCategoriesCount = filters.category_ids.length;
+
+    const filterHeight = scrollY.interpolate({
+      inputRange: [0, 100],
+      outputRange: [55, 0],
+      extrapolate: 'clamp',
+    });
+
+    const filterOpacity = scrollY.interpolate({
+      inputRange: [0, 80],
+      outputRange: [1, 0],
+      extrapolate: 'clamp',
+    });
+
+    return (
+      <Animated.View style={[styles.filterBarContainer, { height: filterHeight, opacity: filterOpacity }]}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterScroll}>
+          <TouchableOpacity
+            style={[styles.filterChip, filters.date_filter !== 'any' && styles.filterChipActive]}
+            onPress={() => {
+              setFilterInitialSection('date');
+              setFilterModalVisible(true);
+            }}
+          >
+            <Icon name="calendar-outline" size={16} color={filters.date_filter !== 'any' ? '#fff' : '#555'} />
+            <Text style={[styles.filterChipText, filters.date_filter !== 'any' && styles.filterChipTextActive]}>
+              {activeDate.charAt(0).toUpperCase() + activeDate.slice(1)}
+            </Text>
+            <Icon name="chevron-down" size={14} color={filters.date_filter !== 'any' ? '#fff' : '#888'} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.filterChip, filters.price_filter !== 'any' && styles.filterChipActive]}
+            onPress={() => {
+              setFilterInitialSection('price');
+              setFilterModalVisible(true);
+            }}
+          >
+            <Icon name="cash-outline" size={16} color={filters.price_filter !== 'any' ? '#fff' : '#555'} />
+            <Text style={[styles.filterChipText, filters.price_filter !== 'any' && styles.filterChipTextActive]}>
+              {activePrice.charAt(0).toUpperCase() + activePrice.slice(1)}
+            </Text>
+            <Icon name="chevron-down" size={14} color={filters.price_filter !== 'any' ? '#fff' : '#888'} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.filterChip, activeCategoriesCount > 0 && styles.filterChipActive]}
+            onPress={() => {
+              setFilterInitialSection('categories');
+              setFilterModalVisible(true);
+            }}
+          >
+            <Icon name="grid-outline" size={16} color={activeCategoriesCount > 0 ? '#fff' : '#555'} />
+            <Text style={[styles.filterChipText, activeCategoriesCount > 0 && styles.filterChipTextActive]}>
+              {activeCategoriesCount > 0 ? `Categories (${activeCategoriesCount})` : 'Categories'}
+            </Text>
+            <Icon name="chevron-down" size={14} color={activeCategoriesCount > 0 ? '#fff' : '#888'} />
+          </TouchableOpacity>
+        </ScrollView>
+      </Animated.View>
+    );
+  };
+
   //  LOADING SCREEN
   if (loading) {
     return (
@@ -132,10 +203,10 @@ const HomeScreen = () => {
   return (
     <View style={styles.container}>
       <Header
-        showSearch={true}
-        placeholder="Search Events..."
         onSearchPress={() => setSearchModalVisible(true)}
+        onFilterPress={() => setFilterModalVisible(true)}
       />
+      {renderFilterBar()}
       <SearchModal
         visible={searchModalVisible}
         currentFilters={filters}
@@ -162,17 +233,36 @@ const HomeScreen = () => {
           fetchEvents(1, resetFilters);
         }}
       />
-      <Categories
+      <FilterModal
+        visible={filterModalVisible}
         categories={categories}
-        selectedIds={filters.category_ids}
-        onSelectCategory={selectedIds => {
-          const newFilters = { ...filters, category_ids: selectedIds };
+        currentFilters={filters}
+        initialSection={filterInitialSection}
+        onClose={() => {
+          setFilterModalVisible(false);
+          setFilterInitialSection(null);
+        }}
+        onApply={modalFilters => {
+          const newFilters = { ...filters, ...modalFilters };
           setFilters(newFilters);
           setHasMore(true);
           fetchEvents(1, newFilters);
         }}
+        onClear={() => {
+          const resetFilters = {
+            ...filters,
+            price_filter: 'any',
+            date_filter: 'any',
+            start_date: '',
+            end_date: '',
+            category_ids: [],
+          };
+          setFilters(resetFilters);
+          setHasMore(true);
+          fetchEvents(1, resetFilters);
+        }}
       />
-      <FlatList
+      <Animated.FlatList
         data={events}
         renderItem={renderItem}
         keyExtractor={item => item.id.toString()}
@@ -182,6 +272,11 @@ const HomeScreen = () => {
         removeClippedSubviews={true}
         initialNumToRender={10}
         windowSize={5}
+        onScroll={Animated.event(
+          [{ nativeEvent: { contentOffset: { y: scrollY } } }],
+          { useNativeDriver: false }
+        )}
+        scrollEventThrottle={16}
         ListHeaderComponent={<Calendars />}
         ListEmptyComponent={
           !loading && (
@@ -247,5 +342,42 @@ const styles = StyleSheet.create({
     color: '#777',
     textAlign: 'center',
     paddingHorizontal: 30,
+  },
+
+  filterBarContainer: {
+    backgroundColor: '#fff',
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0f0f0',
+    overflow: 'hidden',
+  },
+  filterScroll: {
+    paddingHorizontal: 15,
+    gap: 10,
+    alignItems: 'center',
+    height: '100%',
+  },
+  filterChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: '#f5f5f5',
+    borderWidth: 1,
+    borderColor: '#eee',
+    gap: 6,
+    marginRight: 8,
+  },
+  filterChipActive: {
+    backgroundColor: '#22C3B5',
+    borderColor: '#22C3B5',
+  },
+  filterChipText: {
+    fontSize: 13,
+    color: '#555',
+    fontWeight: '600',
+  },
+  filterChipTextActive: {
+    color: '#fff',
   },
 });
