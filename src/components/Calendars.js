@@ -57,7 +57,7 @@ const Calendars = () => {
           source={
             item.logo_url
               ? { uri: item.logo_url }
-              : require('../../assets/appicon.png')
+              : require('../../assets/daisylogo.png')
           }
           style={styles.image}
         />
