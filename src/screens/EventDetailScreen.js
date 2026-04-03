@@ -114,9 +114,7 @@ const EventDetailScreen = ({ route }) => {
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* IMAGE HEADER */}
       <Image
-        source={{
-          uri: event?.banner_image_url || 'https://via.placeholder.com/400',
-        }}
+        source={event?.banner_image_url ? { uri: event.banner_image_url } : require('../../assets/default_event_image.png')}
         style={styles.image}
       />
 
@@ -198,11 +196,15 @@ const EventDetailScreen = ({ route }) => {
 
         {/* PRICE & ACTIONS (SHARE/SAVE) */}
         <View style={styles.priceContainer}>
-          <View style={styles.priceBox}>
-            <Text style={styles.priceText}>
-              {event?.price ? `$${event.price}` : 'Free Event'}
-            </Text>
-          </View>
+          {event?.price_type === 'free' ? (
+            <View style={styles.priceBox}>
+              <Text style={styles.priceText}>Free Event</Text>
+            </View>
+          ) : (event?.price && event?.price !== 0 && event?.price !== '0' ? (
+            <View style={styles.priceBox}>
+              <Text style={styles.priceText}>{`$${event.price}`}</Text>
+            </View>
+          ) : <View />)}
 
           <View style={styles.actionButtons}>
             <TouchableOpacity

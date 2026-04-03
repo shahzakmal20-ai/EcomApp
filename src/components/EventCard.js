@@ -1,11 +1,21 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Share, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const EventCard = ({ item }) => {
   const navigation = useNavigation();
   const [isFavorite, setIsFavorite] = useState(false);
+
+  const onShare = async () => {
+    try {
+      await Share.share({
+        message: `Check out this event: ${item.title}\n\nDate: ${new Date(item.start_date).toDateString()}\n\nLink: ${item.event_url || 'N/A'}`,
+      });
+    } catch (error) {
+      Alert.alert('Error', error.message);
+    }
+  };
 
   const formatStartDate = (startObj) => {
     if (!startObj) return 'Date TBD';
@@ -17,46 +27,53 @@ const EventCard = ({ item }) => {
   };
 
   const dateText = formatStartDate(item.start_date);
-  const priceText = item.price && item.price !== 0 && item.price !== '0' ? `$${item.price}` : 'Free';
+  const priceText = item.price_type === 'free' ? 'Free' : (item.price && item.price !== 0 && item.price !== '0' ? `$${item.price}` : null);
 
   return (
     <View style={styles.card}>
-      <TouchableOpacity
-        activeOpacity={0.9}
-        onPress={() => navigation.navigate('EventDetail', { event: item })}
-      >
-        <View style={styles.imageContainer}>
-          <Image
-            source={{ uri: item.banner_image_url || 'https://via.placeholder.com/400' }}
-            style={styles.image}
-          />
-          <View style={styles.priceBadge}>
-            <Text style={styles.priceBadgeText}>{priceText}</Text>
+        <TouchableOpacity
+          activeOpacity={0.9}
+          onPress={() => navigation.navigate('EventDetail', { event: item })}
+        >
+          <View style={styles.imageContainer}>
+            <Image
+              source={item.banner_image_url ? { uri: item.banner_image_url } : require('../../assets/default_event_image.png')}
+              style={styles.image}
+            />
+            {priceText && (
+              <View style={styles.priceBadge}>
+                <Text style={styles.priceBadgeText}>{priceText}</Text>
+              </View>
+            )}
           </View>
-        </View>
+        </TouchableOpacity>
 
         <View style={styles.content}>
           <View style={styles.dateRow}>
             <Text style={styles.dateText}>{dateText}</Text>
             <View style={styles.iconRow}>
               <TouchableOpacity onPress={() => setIsFavorite(!isFavorite)} style={styles.iconButton}>
-                <Icon name={isFavorite ? "heart" : "heart-outline"} size={22} color={isFavorite ? "#a32334ff" : "#888"} />
+                <Icon name={isFavorite ? "heart" : "heart-outline"} size={22} color={isFavorite ? "#ff4757" : "#888"} />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton}>
+              <TouchableOpacity onPress={onShare} style={styles.iconButton}>
                 <Icon name="share-social-outline" size={22} color="#888" />
               </TouchableOpacity>
             </View>
           </View>
-          <Text style={styles.title} numberOfLines={2}>
-            {item.title}
-          </Text>
-          <View style={styles.detailsRow}>
-            <Text style={styles.location}>
-              {[item.city, item.state, item.country].filter(Boolean).join(', ') || item.location || 'No location'}
+          <TouchableOpacity 
+            activeOpacity={0.7}
+            onPress={() => navigation.navigate('EventDetail', { event: item })}
+          >
+            <Text style={styles.title} numberOfLines={2}>
+              {item.title}
             </Text>
-          </View>
+            <View style={styles.detailsRow}>
+              <Text style={styles.location}>
+                {[item.city, item.state, item.country].filter(Boolean).join(', ') || item.location || 'No location'}
+              </Text>
+            </View>
+          </TouchableOpacity>
         </View>
-      </TouchableOpacity>
     </View>
   );
 };
