@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,40 +6,11 @@ import {
   Image,
   StyleSheet,
   TouchableOpacity,
-  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const Calendars = () => {
+const Calendars = ({ calendars = [] }) => {
   const navigation = useNavigation();
-
-  const [calendars, setCalendars] = useState([]);
-  const [loading, setLoading] = useState(false);
-
-  useEffect(() => {
-    fetchCalendars();
-  }, []);
-
-  const fetchCalendars = async () => {
-    try {
-      setLoading(true);
-
-      const res = await fetch(
-        'https://ceola-unreprovable-modesto.ngrok-free.dev/api/v1/bigdaisy/calendars',
-      );
-
-      const json = await res.json();
-
-      const all = json?.calendars || [];
-
-      // just take first 10 (no filter)
-      setCalendars(all);
-    } catch (err) {
-      console.log(err);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -68,6 +39,8 @@ const Calendars = () => {
     </TouchableOpacity>
   );
 
+  if (!calendars || calendars.length === 0) return null;
+
   return (
     <View style={styles.container}>
       <View style={styles.header}>
@@ -78,17 +51,13 @@ const Calendars = () => {
         </TouchableOpacity>
       </View>
 
-      {loading ? (
-        <ActivityIndicator size="small" color="#000" />
-      ) : (
-        <FlatList
-          data={calendars}
-          horizontal
-          keyExtractor={item => item.id.toString()}
-          renderItem={renderItem}
-          showsHorizontalScrollIndicator={false}
-        />
-      )}
+      <FlatList
+        data={calendars}
+        horizontal
+        keyExtractor={item => item.id.toString()}
+        renderItem={renderItem}
+        showsHorizontalScrollIndicator={false}
+      />
     </View>
   );
 };

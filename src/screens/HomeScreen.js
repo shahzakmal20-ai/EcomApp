@@ -39,6 +39,7 @@ const HomeScreen = () => {
   });
   const [events, setEvents] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [calendars, setCalendars] = useState([]);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -90,11 +91,15 @@ const HomeScreen = () => {
 
       const newEvents = data.events || [];
       const newCategories = data.categories || [];
+      const newCalendars = data.calendars || [];
 
       if (pageNum === 1) {
         setEvents(newEvents);
         if (newCategories.length > 0) {
           setCategories(newCategories);
+        }
+        if (newCalendars.length > 0) {
+          setCalendars(newCalendars);
         }
       } else {
         setEvents(prev => [...prev, ...newEvents]);
@@ -282,7 +287,7 @@ const HomeScreen = () => {
           { useNativeDriver: false }
         )}
         scrollEventThrottle={16}
-        ListHeaderComponent={<Calendars />}
+        ListHeaderComponent={<Calendars calendars={calendars} />}
         ListEmptyComponent={
           !loading && (
             <View style={styles.emptyContainer}>
