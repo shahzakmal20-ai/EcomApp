@@ -136,7 +136,7 @@ const MyCalendarScreen = () => {
           source={
             calendarInfo.banner_image_url
               ? { uri: calendarInfo.banner_image_url }
-              : require('../../assets/default_banner_image.webp')
+              : require('../../assets/default_banner_image.png')
           }
           style={styles.bannerImage}
           resizeMode="cover"
