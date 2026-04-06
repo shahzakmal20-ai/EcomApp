@@ -14,6 +14,7 @@ import {
   Keyboard,
   Linking,
 } from 'react-native';
+import { DOMAIN_URL, getAuthHeader } from '../api/auth';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAuth } from '../api/AuthContext';
 import { useNavigation } from '@react-navigation/native';
@@ -37,26 +38,45 @@ const LoginScreen = () => {
       // Using localhost for now as requested.
       // Note: On Android emulator, 'localhost' might need to be '10.0.2.2'.
       const response = await fetch(
-        'https://ceola-unreprovable-modesto.ngrok-free.dev/api/v1/login',
+        `${DOMAIN_URL}/api/v1/login`,
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            Accept: 'application/json',
+            Authorization: getAuthHeader(),
           },
           body: JSON.stringify({
             email: email.trim(),
-            password: password,
+            password,
           }),
         },
       );
 
-      const data = await response.json();
+      const text = await response.text();
 
-      if (data.success) {
+      console.log('RAW RESPONSE:', text);
+
+      let data = null;
+
+      try {
+        data = JSON.parse(text);
+      } catch (e) {
+        console.log('Non-JSON response:', text);
+        data = { message: text };
+      }
+
+      if (!response.ok || data?.success === false) {
+        const message = data?.message || 'Invalid credentials or server error';
+
+        Alert.alert('Login Failed', message);
+        return;
+      }
+      if (data?.success && data?.token && data?.user) {
         await login(data.user, data.token);
         navigation.goBack();
       } else {
-        Alert.alert('Login Failed', data.error || 'Invalid email or password');
+        Alert.alert('Login Failed', data?.message || 'Invalid server response');
       }
     } catch (error) {
       console.error('Login Error:', error);

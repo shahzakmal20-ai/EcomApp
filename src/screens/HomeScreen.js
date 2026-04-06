@@ -6,6 +6,7 @@ import SearchModal from '../components/SearchModal';
 import FilterModal from '../components/FilterModal';
 import { useNavigation } from '@react-navigation/native';
 import EventCard from '../components/EventCard';
+import { DOMAIN_URL, getAuthHeader } from '../api/auth';
 import {
   View,
   Text,
@@ -47,8 +48,7 @@ const HomeScreen = () => {
   const [loadingMore, setLoadingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
-  const API_URL =
-    'https://ceola-unreprovable-modesto.ngrok-free.dev/api/v1/bigdaisy/events';
+  const API_URL = `${DOMAIN_URL}/api/v1/bigdaisy/events`;
 
   // FETCH EVENTS
   const fetchEvents = async (pageNum = 1, appliedFilters = filters) => {
@@ -90,7 +90,13 @@ const HomeScreen = () => {
         url += `&category_ids=${appliedFilters.category_ids.join(',')}`;
       }
 
-      const res = await fetch(url);
+
+      const res = await fetch(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: getAuthHeader(),
+        },
+      });
       if (!res.ok) {
         throw new Error(`API Error: ${res.status}`);
       }

@@ -9,8 +9,9 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import EventCard from '../components/EventCard';
+import {DOMAIN_URL, getAuthHeader } from '../api/auth';
 
-const BASE_URL = 'https://ceola-unreprovable-modesto.ngrok-free.dev/api/v1/bigdaisy';
+const BASE_URL = `${DOMAIN_URL}/api/v1/bigdaisy`;
 
 const CalendarShowScreen = ({ route }) => {
   const navigation = useNavigation();
@@ -27,7 +28,12 @@ const CalendarShowScreen = ({ route }) => {
       pageNum === 1 ? setLoading(true) : setLoadingMore(true);
 
       const url = `${BASE_URL}/calendar_events?calendar_slug=${calendarSlug}&page=${pageNum}&per_page=10`;
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: getAuthHeader(),
+        },
+      });
       const data = await res.json();
 
       const newEvents = data.events || [];

@@ -17,6 +17,7 @@ import Clipboard from '@react-native-clipboard/clipboard';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { WebView } from 'react-native-webview';
+import { DOMAIN_URL, getAuthHeader } from '../api/auth';
 
 const { width } = Dimensions.get('window');
 
@@ -39,7 +40,7 @@ const EventDetailScreen = ({ route }) => {
     }
   };
   const toggleFavorite = async () => {
-    const API_URL = 'https://ceola-unreprovable-modesto.ngrok-free.dev';
+    const API_URL = `${DOMAIN_URL}`;
 
     // BLOCK IF NOT LOGGED IN
     if (!isAuthenticated) {
@@ -66,7 +67,8 @@ const EventDetailScreen = ({ route }) => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+            Authorization: getAuthHeader(),
+            'User-Token': `Bearer ${token}`,
           },
         },
       );

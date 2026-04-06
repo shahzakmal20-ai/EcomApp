@@ -11,6 +11,7 @@ import {
 import { useAuth } from '../api/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { DOMAIN_URL, getAuthHeader } from '../api/auth';
 
 const EventCard = ({ item }) => {
   const navigation = useNavigation();
@@ -53,7 +54,7 @@ const EventCard = ({ item }) => {
     setLoading(true);
 
     try {
-      const API_URL = 'https://ceola-unreprovable-modesto.ngrok-free.dev';
+      const API_URL = `${DOMAIN_URL}`;
 
       const response = await fetch(
         `${API_URL}/api/v1/events/${item.id}/favourites`,
@@ -62,7 +63,8 @@ const EventCard = ({ item }) => {
           headers: {
             'Content-Type': 'application/json',
 
-            Authorization: `Bearer ${token}`,
+            Authorization: getAuthHeader(),
+            'User-Token': `Bearer ${token}`,
           },
         },
       );

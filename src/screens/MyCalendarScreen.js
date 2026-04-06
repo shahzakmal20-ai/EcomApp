@@ -18,8 +18,9 @@ import { useAuth } from '../api/AuthContext';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import EventCard from '../components/EventCard';
+import { DOMAIN_URL, getAuthHeader } from '../api/auth';
 
-const BASE_URL = 'https://ceola-unreprovable-modesto.ngrok-free.dev/api/v1/bigdaisy';
+const BASE_URL = `${DOMAIN_URL}/api/v1/bigdaisy`;
 const { width } = Dimensions.get('window');
 const BANNER_HEIGHT = 200;
 
@@ -69,41 +70,50 @@ const MyCalendarScreen = () => {
   const [hasMore, setHasMore] = useState(true);
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const fetchEvents = useCallback(async (pageNum = 1, isRefresh = false) => {
-    if (!user?.id) return;
-    try {
-      if (pageNum === 1 && !isRefresh) setLoading(true);
-      if (pageNum > 1) setLoadingMore(true);
+  const fetchEvents = useCallback(
+    async (pageNum = 1, isRefresh = false) => {
+      if (!user?.id) return;
+      try {
+        if (pageNum === 1 && !isRefresh) setLoading(true);
+        if (pageNum > 1) setLoadingMore(true);
 
-      const url = `${BASE_URL}/calendar_events?user_id=${user.id}&page=${pageNum}&per_page=10`;
-      const res = await fetch(url);
-      const data = await res.json();
-
-      const newEvents = data.events || [];
-
-      // Extract calendar info from data.calendar
-      if (pageNum === 1) {
-        const cal = data.calendar || {};
-        setCalendarInfo({
-          name: cal.name || 'My Calendar',
-          logo_url: cal.logo_url || null,
-          banner_image_url: cal.banner_image_url || null,
+        const url = `${BASE_URL}/calendar_events?user_id=${user.id}&page=${pageNum}&per_page=10`;
+        const res = await fetch(url, {
+          method: 'GET',
+          headers: {
+            Authorization: getAuthHeader(),
+            'Content-Type': 'application/json',
+          },
         });
-        setEvents(newEvents);
-      } else {
-        setEvents(prev => [...prev, ...newEvents]);
-      }
+        const data = await res.json();
 
-      setPage(pageNum);
-      setHasMore(newEvents.length >= 10);
-    } catch (err) {
-      console.log('MyCalendarScreen fetch error:', err);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-      setRefreshing(false);
-    }
-  }, [user?.id]);
+        const newEvents = data.events || [];
+
+        // Extract calendar info from data.calendar
+        if (pageNum === 1) {
+          const cal = data.calendar || {};
+          setCalendarInfo({
+            name: cal.name || 'My Calendar',
+            logo_url: cal.logo_url || null,
+            banner_image_url: cal.banner_image_url || null,
+          });
+          setEvents(newEvents);
+        } else {
+          setEvents(prev => [...prev, ...newEvents]);
+        }
+
+        setPage(pageNum);
+        setHasMore(newEvents.length >= 10);
+      } catch (err) {
+        console.log('MyCalendarScreen fetch error:', err);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+        setRefreshing(false);
+      }
+    },
+    [user?.id],
+  );
 
   useEffect(() => {
     if (isAuthenticated) fetchEvents(1);
@@ -170,7 +180,10 @@ const MyCalendarScreen = () => {
         <StatusBar barStyle="dark-content" />
         <View style={styles.topBar}>
           <Text style={styles.topBarTitle}>My Calendar</Text>
-          <TouchableOpacity style={styles.dotsBtn} onPress={() => setMenuVisible(true)}>
+          <TouchableOpacity
+            style={styles.dotsBtn}
+            onPress={() => setMenuVisible(true)}
+          >
             <Icon name="ellipsis-vertical" size={22} color="#333" />
           </TouchableOpacity>
         </View>
@@ -189,7 +202,10 @@ const MyCalendarScreen = () => {
       {/* ── Top bar ── */}
       <View style={styles.topBar}>
         <Text style={styles.topBarTitle}>My Calendar</Text>
-        <TouchableOpacity style={styles.dotsBtn} onPress={() => setMenuVisible(true)}>
+        <TouchableOpacity
+          style={styles.dotsBtn}
+          onPress={() => setMenuVisible(true)}
+        >
           <Icon name="ellipsis-vertical" size={22} color="#333" />
         </TouchableOpacity>
       </View>
@@ -203,7 +219,11 @@ const MyCalendarScreen = () => {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.listContent}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} tintColor="#22C3B5" />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor="#22C3B5"
+          />
         }
         onEndReached={loadMore}
         onEndReachedThreshold={0.5}
@@ -238,7 +258,10 @@ const MyCalendarScreen = () => {
         animationType="fade"
         onRequestClose={() => setMenuVisible(false)}
       >
-        <Pressable style={styles.modalOverlay} onPress={() => setMenuVisible(false)}>
+        <Pressable
+          style={styles.modalOverlay}
+          onPress={() => setMenuVisible(false)}
+        >
           <Pressable style={styles.menuCard} onPress={() => {}}>
             {/* User Info */}
             <View style={styles.menuUserSection}>
@@ -251,9 +274,7 @@ const MyCalendarScreen = () => {
                 <Text style={styles.menuUserEmail} numberOfLines={1}>
                   {user?.email}
                 </Text>
-                <Text style={styles.menuUserRole}>
-                  {user?.role || 'User'}
-                </Text>
+                <Text style={styles.menuUserRole}>{user?.role || 'User'}</Text>
               </View>
             </View>
 
@@ -390,7 +411,6 @@ const styles = StyleSheet.create({
     height: '100%',
   },
 
-
   logoWrapper: {
     position: 'absolute',
     bottom: -36,
@@ -412,7 +432,7 @@ const styles = StyleSheet.create({
   },
   calendarMeta: {
     alignItems: 'center',
-    paddingTop: 48,  // space below logo (36 overlap + 12 gap)
+    paddingTop: 48, // space below logo (36 overlap + 12 gap)
     paddingBottom: 20,
     paddingHorizontal: 20,
   },

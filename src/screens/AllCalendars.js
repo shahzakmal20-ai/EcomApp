@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   TextInput,
 } from 'react-native';
+import { DOMAIN_URL, getAuthHeader } from '../api/auth';
 
 const AllCalendars = () => {
   const navigation = useNavigation();
@@ -48,7 +49,7 @@ const AllCalendars = () => {
     nextPage === 1 ? setLoading(true) : setLoadingMore(true);
 
     try {
-      let url = `https://ceola-unreprovable-modesto.ngrok-free.dev/api/v1/calendars?page=${nextPage}&per_page=10`;
+      let url = `${DOMAIN_URL}/api/v1/calendars?page=${nextPage}&per_page=10`;
 
       // ADDED (category_ids in URL)
       if (categoriesFilter.length > 0) {
@@ -59,7 +60,12 @@ const AllCalendars = () => {
       } else if (categoriesFilter.length > 0 && appliedSearch) {
         url += `&search=${appliedSearch}`;
       }
-      const res = await fetch(url);
+      const res = await fetch(url, {
+        headers: {
+          Accept: 'application/json',
+          Authorization: getAuthHeader(),
+        },
+      });
 
       if (!res.ok) {
         throw new Error(`API Error: ${res.status}`);

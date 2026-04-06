@@ -3,9 +3,9 @@ import { View, ActivityIndicator } from 'react-native';
 import { WebView } from 'react-native-webview';
 import { useNavigation } from '@react-navigation/native';
 import Header from '../components/Header';
+import { DOMAIN_URL, getAuthHeader } from '../api/auth';
 
-const API_URL =
-  'https://ceola-unreprovable-modesto.ngrok-free.dev/api/v1/bigdaisy/mapcalendars';
+const API_URL = `${DOMAIN_URL}/api/v1/bigdaisy/mapcalendars`;
 
 const MapScreen = () => {
   const navigation = useNavigation();
@@ -183,7 +183,13 @@ const MapScreen = () => {
 
   const fetchCalendars = async () => {
     try {
-      const res = await fetch(API_URL);
+      const res = await fetch(API_URL, {
+        method: 'GET',
+        headers: {
+          Authorization: getAuthHeader(),
+          'Content-Type': 'application/json',
+        },
+      });
       const data = await res.json();
 
       const calendars = data.calendars || [];
