@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   Linking,
   TouchableOpacity,
   ToastAndroid,
+  FlatList,
 } from 'react-native';
 import { useAuth } from '../api/AuthContext';
 import Clipboard from '@react-native-clipboard/clipboard';
@@ -18,6 +19,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import { WebView } from 'react-native-webview';
 import { DOMAIN_URL, getAuthHeader } from '../api/auth';
+import EventCard from '../components/EventCard';
 
 const { width } = Dimensions.get('window');
 
@@ -27,6 +29,8 @@ const EventDetailScreen = ({ route }) => {
   const { event } = route.params;
   const [isSaved, setIsSaved] = useState(event?.is_favorited || false);
   const [loading, setLoading] = useState(false);
+  const [similarEvents, setSimilarEvents] = useState([]);
+  const [loadingSimilar, setLoadingSimilar] = useState(false);
 
   const onShare = async () => {
     try {
@@ -79,7 +83,7 @@ const EventDetailScreen = ({ route }) => {
         setIsSaved(data.saved);
 
         if (data.message) {
-           ToastAndroid.show(data.message, ToastAndroid.SHORT);
+          ToastAndroid.show(data.message, ToastAndroid.SHORT);
         }
       } else {
         setIsSaved(previous); // rollback
@@ -170,6 +174,30 @@ const EventDetailScreen = ({ route }) => {
       </html>
     `;
   };
+  const fetchSimilarEvents = async eventId => {
+    try {
+      setLoadingSimilar(true);
+
+      const response = await fetch(
+        `${DOMAIN_URL}/api/v1/events/similar?event_id=${eventId}`,
+      );
+
+      const data = await response.json();
+
+      if (data.success) {
+        setSimilarEvents(data.events);
+      }
+    } catch (error) {
+      console.log('Similar events error:', error);
+    } finally {
+      setLoadingSimilar(false);
+    }
+  };
+  useEffect(() => {
+    if (event?.id) {
+      fetchSimilarEvents(event.id);
+    }
+  }, [event?.id]);
 
   return (
     <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -313,7 +341,26 @@ const EventDetailScreen = ({ route }) => {
           {event?.description ||
             'No description available for this event. Stay tuned for more details.'}
         </Text>
+        <Text style={styles.sectionTitle}>Similar Events</Text>
 
+        {loadingSimilar ? (
+          <Text style={{ marginTop: 10 }}>Loading...</Text>
+        ) : similarEvents.length > 0 ? (
+          <FlatList
+            data={similarEvents}
+            horizontal
+            keyExtractor={item => item.id.toString()}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ marginTop: 10, paddingRight: 10 }}
+            renderItem={({ item }) => (
+              <View style={{ width: 280, marginRight: 12, borderRadius: 16, overflow: 'hidden' }}>
+                <EventCard item={item} />
+              </View>
+            )}
+          />
+        ) : (
+          <Text style={{ marginTop: 10 }}>No similar events found</Text>
+        )}
         {/* BUTTON */}
         <TouchableOpacity
           style={styles.button}
